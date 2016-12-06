@@ -1,0 +1,108 @@
+<div ng-controller="mainCtrl">
+	<div>
+		<input type="submit" ng-click="resetAllData()" value="Reset" />
+	</div>
+	<div id="userSelectingSlice" ng-show="!userSelect">
+		<ol type="1">
+			<li>Refer to the most recent electricity bill</li>
+			<li>Check Consumption</li>
+			<li>Select from below table which sector you belong to according to your consumption.</li>
+		</ol>
+		<form name="userSelectSlice">
+				<table>
+					<tr><th>Slice ID</th><th>Slice Type</th><th>Slice Price</th></tr>
+					<tr ng-repeat="onePrice in Prices">
+						<td><input type="radio" name="slice" value="{{onePrice.id}}" ng-model="userData.slice"></td>
+						<td>From {{onePrice.min}} Watt <span ng-if="onePrice.max != null">to {{onePrice.max}} Watt</span></td>
+						<td>{{onePrice.price}}</td>
+					</tr>
+				</table>
+				<input type="submit" ng-click="submitUserSelectSliceForm(formData)" value="Next" />
+		</form>
+	</div>
+
+
+
+	<div id="userSelectingBulbs" ng-show="userSelect">
+		<select name="bulbSelector" id="bulbSelector" ng-model="userData.BulbType">
+			<option value="">Choose Bulb Type</option>
+			<option value="0">GLS</option>
+			<option value="1">CFL</option>
+		</select>
+	</div>
+
+	<div id="userSelectingWattsAndNumbers" ng-show="userData.BulbType">
+		<form>
+			<input type="number" placeholder="Number of Bulbs" min="1" step="1" class="bulbsNumber" ng-model="userData.number"/>
+			<select name="wattSelector" id="wattSelector" ng-model="userData.watt">
+				<option value="">Choose Watt</option>
+				<option ng-repeat="watt in allBulbsData[userData.BulbType].watt">{{watt}}</option>
+			</select>
+			<button ng-click="addUserData()">Add New Bulb</button>
+		</form>
+	</div>
+
+	<div id="totalCalculations" ng-show="totalCalculation.length">
+		<table>
+			<tr><th></th><th>Bulb</th><th>Number of Bulbs </th><th>Watt</th></tr>
+			<tr ng-repeat="oneSelection in totalCalculation track by $index">
+				<td><button ng-click="deleteFromCalculations($index)">Delete</button></td>
+				<td><span ng-if="oneSelection['bulb'] == '0'">GLS</span><span ng-if="oneSelection['bulb'] == '1'">CLF</span></td>
+				<td>{{oneSelection['number']}}</td>
+				<td>{{oneSelection['watt']}}</td>
+			</tr>
+		</table>
+		<button ng-click="showResult()">Show Result</button>
+	</div>
+
+
+	<div id="output1" ng-show="output">
+		Total Costs for all your selection is
+		<table>
+			<tr>
+				<th>Sector</th>
+				<th>Monthly</th>
+				<th>Yearly</th>
+			</tr>
+			<tr>
+				<td class="tdSlice">Slice {{userData.slice}}</td>
+				<td class="tdPrice">{{userData.monthlyCost}} EGP</td>
+				<td class="tdPrice">{{userData.yearlyCost}} EGP</td>
+			</tr>
+			</table>
+	</div>
+	<div id="compareOP">
+		<h2>Comparing to CFL</h2>Your Equivalent CFL and Costs are : <br>
+		<p ng-repeat="oneCal in totalCalculation">
+			{{oneCal['number']}} CFL Bulbs {{oneCal['EquivalCFL']['averageWatt']}} Watt
+		</p>
+		<table>
+			<tr>
+				<th>Sector</th>
+				<th>Monthly</th>
+				<th>Yearly</th>
+			</tr>
+			<tr>
+				<td class="tdSlice">Slice {{userData.slice}}</td>
+				<td class="tdPrice">{{userData.outputTotalCFLMonthly}} EGP</td>
+				<td class="tdPrice">{{userData.outputTotalCFLYearly}} EGP</td>
+			</tr>
+		</table>
+		<h2>Comparing to LED</h2>Your Equivalent LED and Costs are : <br>
+		<p ng-repeat="oneCal in totalCalculation">
+			{{oneCal['number']}} LED Bulbs {{oneCal['EquivalLED']['averageWatt']}} Watt
+		</p>
+			<table>
+				<tr>
+					<th>Sector</th>
+					<th>Monthly</th>
+					<th>Yearly</th>
+				</tr>
+				<tr>
+					<td class="tdSlice">Slice {{userData.slice}}</td>
+					<td class="tdPrice">{{userData.outputTotalLEDMonthly}} EGP</td>
+					<td class="tdPrice">{{userData.outputTotalLEDYearly}} EGP</td>
+				</tr>
+			</table>
+	</div>
+</div>
